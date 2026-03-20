@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Cheat Sheet</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2128;
+            --border: #30363d;
+            --border-hover: #4a5568;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --accent: #f78166;
+            --red: #ff6b6b;
+            --green: #3fb950;
+            --blue: #79c0ff;
+            --purple: #d2a8ff;
+            --yellow: #e3b341;
+            --orange: #ffa657;
+            --teal: #56d364;
+            --tag-bg: #1f2d3d;
+            --tag-text: #79c0ff;
+            --code-bg: #0d1117;
+            /* icon badge backgrounds — dim tint of each accent color */
+            --ic-bg-green: #1c2e22;
+            --ic-bg-blue: #1f2b3e;
+            --ic-bg-purple: #2a1f3e;
+            --ic-bg-accent: #2e1f1a;
+            --ic-bg-teal: #1f2e2a;
+            --ic-bg-yellow: #2e2a1f;
+            --ic-bg-orange: #2a1f1f;
+            --ic-bg-log: #1f2432;
+            --ic-bg-stash: #2a1f2e;
+            --ic-bg-red: #2e1f1f;
+            --ic-bg-diff: #1f2e28;
+            --ic-bg-config: #1f2a2e;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 48px 32px 80px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 4px 12px;
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+
+        h1 {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 700;
+            letter-spacing: -2px;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .card-body {
+            padding: 12px 0;
+        }
+
+        .cmd {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 7px 20px;
+            transition: background 0.15s;
+        }
+
+        .cmd:hover {
+            background: var(--surface2);
+        }
+
+        .cmd code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            color: var(--blue);
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 195px;
+        }
+
+        .cmd code .kw {
+            color: var(--accent);
+        }
+
+        .cmd code .opt {
+            color: var(--purple);
+        }
+
+        .cmd code .arg {
+            color: var(--orange);
+        }
+
+        .cmd code .str {
+            color: var(--green);
+        }
+
+        .cmd-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 20px;
+            opacity: 0.5;
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            padding: 6px 20px 2px;
+            opacity: 0.6;
+        }
+
+        /* Icon colors per section */
+        .ic-setup {
+            background: var(--ic-bg-green);
+            color: var(--green);
+        }
+
+        .ic-init {
+            background: var(--ic-bg-blue);
+            color: var(--blue);
+        }
+
+        .ic-stage {
+            background: var(--ic-bg-purple);
+            color: var(--purple);
+        }
+
+        .ic-commit {
+            background: var(--ic-bg-accent);
+            color: var(--accent);
+        }
+
+        .ic-branch {
+            background: var(--ic-bg-teal);
+            color: var(--teal);
+        }
+
+        .ic-merge {
+            background: var(--ic-bg-yellow);
+            color: var(--yellow);
+        }
+
+        .ic-remote {
+            background: var(--ic-bg-orange);
+            color: var(--orange);
+        }
+
+        .ic-log {
+            background: var(--ic-bg-log);
+            color: var(--blue);
+        }
+
+        .ic-stash {
+            background: var(--ic-bg-stash);
+            color: var(--purple);
+        }
+
+        .ic-undo {
+            background: var(--ic-bg-red);
+            color: var(--red);
+        }
+
+        .ic-tag {
+            background: var(--ic-bg-yellow);
+            color: var(--yellow);
+        }
+
+        .ic-diff {
+            background: var(--ic-bg-diff);
+            color: var(--green);
+        }
+
+        .ic-config {
+            background: var(--ic-bg-config);
+            color: var(--teal);
+        }
+
+        .ic-rebase {
+            background: var(--ic-bg-stash);
+            color: var(--purple);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: var(--muted);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.5;
+            letter-spacing: 0.5px;
+        }
+
+        @media print {
+            body {
+                padding: 16px;
+                background: #fff;
+                color: #000;
+            }
+
+            .card {
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="header-badge">Reference v2.x</div>
+        <h1>Git <span>Cheat Sheet</span></h1>
+        <p class="subtitle">Every command you actually need, organized for quick lookup</p>
+    </div>
+
+    <div class="grid">
+
+        <!-- SETUP & CONFIG -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-setup">⚙</div>
+                <span class="card-title">Setup &amp; Config</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd">
+                    <code><span class="kw">git</span> config <span class="opt">--global</span> user.name <span class="str">"Name"</span></code><span
+                        class="cmd-desc">Set global username</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> config <span class="opt">--global</span> user.email <span class="str">"e@mail"</span></code><span
+                        class="cmd-desc">Set global email</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> config <span class="opt">--global</span> core.editor <span class="arg">vim</span></code><span
+                        class="cmd-desc">Set default editor</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> config <span class="opt">--list</span></code><span
+                        class="cmd-desc">List all config settings</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> config <span class="opt">--global</span> alias.<span class="arg">co</span> checkout</code><span
+                        class="cmd-desc">Create a command alias</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> config <span class="opt">--global</span> color.ui <span class="arg">auto</span></code><span
+                        class="cmd-desc">Enable colored output</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- INIT & CLONE -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-init">◈</div>
+                <span class="card-title">Init &amp; Clone</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> init</code><span class="cmd-desc">Initialize a new
+                        local repo</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> init <span class="arg">&lt;directory&gt;</span></code><span
+                        class="cmd-desc">Init repo in specific folder</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> clone <span class="arg">&lt;url&gt;</span></code><span
+                        class="cmd-desc">Clone a remote repository</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> clone <span class="arg">&lt;url&gt;</span> <span class="arg">&lt;dir&gt;</span></code><span
+                        class="cmd-desc">Clone into named folder</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> clone <span class="opt">--depth</span> <span class="arg">1</span> <span class="arg">&lt;url&gt;</span></code><span
+                        class="cmd-desc">Shallow clone (latest only)</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> clone <span class="opt">--branch</span> <span class="arg">&lt;name&gt;</span> <span class="arg">&lt;url&gt;</span></code><span
+                        class="cmd-desc">Clone specific branch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAGING -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-stage">◎</div>
+                <span class="card-title">Staging</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> status</code><span class="cmd-desc">Show working tree
+                        status</span></div>
+                <div class="cmd"><code><span class="kw">git</span> add <span class="arg">&lt;file&gt;</span></code><span
+                        class="cmd-desc">Stage a specific file</span></div>
+                <div class="cmd"><code><span class="kw">git</span> add <span class="arg">.</span></code><span
+                        class="cmd-desc">Stage all changes</span></div>
+                <div class="cmd"><code><span class="kw">git</span> add <span class="opt">-p</span></code><span
+                        class="cmd-desc">Interactively stage hunks</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> restore <span class="opt">--staged</span> <span class="arg">&lt;file&gt;</span></code><span
+                        class="cmd-desc">Unstage a file</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> restore <span class="arg">&lt;file&gt;</span></code><span
+                        class="cmd-desc">Discard working dir changes</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> rm <span class="arg">&lt;file&gt;</span></code><span
+                        class="cmd-desc">Remove file and stage deletion</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> rm <span class="opt">--cached</span> <span class="arg">&lt;file&gt;</span></code><span
+                        class="cmd-desc">Untrack file, keep locally</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMITTING -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-commit">●</div>
+                <span class="card-title">Committing</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd">
+                    <code><span class="kw">git</span> commit <span class="opt">-m</span> <span class="str">"message"</span></code><span
+                        class="cmd-desc">Commit with inline message</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> commit <span class="opt">-am</span> <span class="str">"message"</span></code><span
+                        class="cmd-desc">Stage tracked files &amp; commit</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> commit <span class="opt">--amend</span></code><span
+                        class="cmd-desc">Edit last commit (msg or files)</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> commit <span class="opt">--amend --no-edit</span></code><span
+                        class="cmd-desc">Amend without changing message</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> commit <span class="opt">--allow-empty</span> <span class="opt">-m</span> <span class="str">"msg"</span></code><span
+                        class="cmd-desc">Create empty commit</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> cherry-pick <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Apply commit from another branch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BRANCHING -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-branch">⌥</div>
+                <span class="card-title">Branches</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> branch</code><span class="cmd-desc">List local
+                        branches</span></div>
+                <div class="cmd"><code><span class="kw">git</span> branch <span class="opt">-a</span></code><span
+                        class="cmd-desc">List all branches (incl. remote)</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> branch <span class="arg">&lt;name&gt;</span></code><span
+                        class="cmd-desc">Create a new branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> checkout <span class="opt">-b</span> <span class="arg">&lt;name&gt;</span></code><span
+                        class="cmd-desc">Create and switch to branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> switch <span class="arg">&lt;name&gt;</span></code><span
+                        class="cmd-desc">Switch to existing branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> switch <span class="opt">-c</span> <span class="arg">&lt;name&gt;</span></code><span
+                        class="cmd-desc">Create and switch branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> branch <span class="opt">-d</span> <span class="arg">&lt;name&gt;</span></code><span
+                        class="cmd-desc">Delete merged branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> branch <span class="opt">-D</span> <span class="arg">&lt;name&gt;</span></code><span
+                        class="cmd-desc">Force delete branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> branch <span class="opt">-m</span> <span class="arg">&lt;old&gt;</span> <span class="arg">&lt;new&gt;</span></code><span
+                        class="cmd-desc">Rename a branch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MERGING -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-merge">⌘</div>
+                <span class="card-title">Merge &amp; Rebase</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd">
+                    <code><span class="kw">git</span> merge <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Merge branch into current</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> merge <span class="opt">--no-ff</span> <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Merge with merge commit always</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> merge <span class="opt">--squash</span> <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Squash all commits into one</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> merge <span class="opt">--abort</span></code><span
+                        class="cmd-desc">Abort merge in progress</span></div>
+                <div class="divider"></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> rebase <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Rebase current onto branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> rebase <span class="opt">-i</span> HEAD~<span class="arg">N</span></code><span
+                        class="cmd-desc">Interactive rebase last N commits</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> rebase <span class="opt">--continue</span></code><span
+                        class="cmd-desc">Continue after conflict fix</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> rebase <span class="opt">--abort</span></code><span
+                        class="cmd-desc">Abort rebase in progress</span></div>
+            </div>
+        </div>
+
+        <!-- REMOTE -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-remote">⇌</div>
+                <span class="card-title">Remotes</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> remote <span class="opt">-v</span></code><span
+                        class="cmd-desc">List remotes with URLs</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> remote add <span class="arg">origin</span> <span class="arg">&lt;url&gt;</span></code><span
+                        class="cmd-desc">Add a remote</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> remote remove <span class="arg">origin</span></code><span
+                        class="cmd-desc">Remove a remote</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> remote rename <span class="arg">old</span> <span class="arg">new</span></code><span
+                        class="cmd-desc">Rename a remote</span>
+                </div>
+                <div class="divider"></div>
+                <div class="cmd"><code><span class="kw">git</span> fetch</code><span class="cmd-desc">Fetch all
+                        remotes</span></div>
+                <div class="cmd"><code><span class="kw">git</span> fetch <span class="arg">origin</span></code><span
+                        class="cmd-desc">Fetch specific remote</span></div>
+                <div class="cmd"><code><span class="kw">git</span> pull</code><span class="cmd-desc">Fetch and
+                        merge</span></div>
+                <div class="cmd"><code><span class="kw">git</span> pull <span class="opt">--rebase</span></code><span
+                        class="cmd-desc">Fetch and rebase (cleaner)</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="arg">origin</span> <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Push branch to remote</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="opt">-u</span> <span class="arg">origin</span> <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Push and set upstream</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="opt">--force-with-lease</span></code><span
+                        class="cmd-desc">Safe force push</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="arg">origin</span> <span class="opt">--delete</span> <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Delete remote branch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOG & HISTORY -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-log">≡</div>
+                <span class="card-title">Log &amp; History</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> log</code><span class="cmd-desc">Show commit
+                        history</span></div>
+                <div class="cmd"><code><span class="kw">git</span> log <span class="opt">--oneline</span></code><span
+                        class="cmd-desc">Condensed one-line log</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> log <span class="opt">--oneline --graph --all</span></code><span
+                        class="cmd-desc">Visual branch graph</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> log <span class="opt">-p</span></code><span
+                        class="cmd-desc">Show patches with commits</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> log <span class="opt">-n</span> <span class="arg">5</span></code><span
+                        class="cmd-desc">Show last 5 commits</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> log <span class="opt">--author=</span><span class="str">"name"</span></code><span
+                        class="cmd-desc">Filter by author</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> log <span class="opt">--since=</span><span class="str">"2 weeks ago"</span></code><span
+                        class="cmd-desc">Filter by date</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> log <span class="opt">--grep=</span><span class="str">"keyword"</span></code><span
+                        class="cmd-desc">Search commit messages</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> show <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Show a specific commit</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> shortlog <span class="opt">-sn</span></code><span
+                        class="cmd-desc">Commits per author summary</span></div>
+            </div>
+        </div>
+
+        <!-- DIFF -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-diff">±</div>
+                <span class="card-title">Diff &amp; Inspect</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> diff</code><span class="cmd-desc">Unstaged
+                        changes</span></div>
+                <div class="cmd"><code><span class="kw">git</span> diff <span class="opt">--staged</span></code><span
+                        class="cmd-desc">Staged vs last commit</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> diff <span class="arg">&lt;branch1&gt;</span>..<span class="arg">&lt;branch2&gt;</span></code><span
+                        class="cmd-desc">Diff between two branches</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> diff <span class="arg">&lt;hash&gt;</span>..<span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Diff between two commits</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> diff <span class="opt">--stat</span></code><span
+                        class="cmd-desc">Summary of changed files</span></div>
+                <div class="divider"></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> blame <span class="arg">&lt;file&gt;</span></code><span
+                        class="cmd-desc">Who changed each line</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> grep <span class="str">"pattern"</span></code><span
+                        class="cmd-desc">Search working tree</span></div>
+                <div class="cmd"><code><span class="kw">git</span> bisect start</code><span class="cmd-desc">Start
+                        binary bug search</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> bisect good <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Mark commit as good</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> bisect bad</code><span class="cmd-desc">Mark current
+                        as bad</span></div>
+            </div>
+        </div>
+
+        <!-- STASH -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-stash">⊙</div>
+                <span class="card-title">Stash</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> stash</code><span class="cmd-desc">Stash current
+                        changes</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> stash push <span class="opt">-m</span> <span class="str">"msg"</span></code><span
+                        class="cmd-desc">Stash with a description</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> stash <span class="opt">-u</span></code><span
+                        class="cmd-desc">Stash including untracked</span></div>
+                <div class="cmd"><code><span class="kw">git</span> stash list</code><span class="cmd-desc">List all
+                        stashes</span></div>
+                <div class="cmd"><code><span class="kw">git</span> stash pop</code><span class="cmd-desc">Apply &amp;
+                        remove last stash</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> stash apply <span class="arg">stash@{N}</span></code><span
+                        class="cmd-desc">Apply specific stash</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> stash drop <span class="arg">stash@{N}</span></code><span
+                        class="cmd-desc">Delete a stash</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> stash clear</code><span class="cmd-desc">Remove all
+                        stashes</span></div>
+                <div class="cmd"><code><span class="kw">git</span> stash show <span class="opt">-p</span></code><span
+                        class="cmd-desc">Show stash diff</span></div>
+            </div>
+        </div>
+
+        <!-- UNDO & RESET -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-undo">↺</div>
+                <span class="card-title">Undo &amp; Reset</span>
+            </div>
+            <div class="card-body">
+                <div class="section-label">safe (creates new commits)</div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> revert <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">New commit undoing a commit</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> revert HEAD</code><span class="cmd-desc">Revert last
+                        commit</span></div>
+                <div class="divider"></div>
+                <div class="section-label">destructive (rewrites history)</div>
+                <div class="cmd"><code><span class="kw">git</span> reset HEAD~<span class="arg">1</span></code><span
+                        class="cmd-desc">Undo commit, keep changes staged</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> reset <span class="opt">--soft</span> HEAD~<span class="arg">1</span></code><span
+                        class="cmd-desc">Undo commit, keep changes staged</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> reset <span class="opt">--mixed</span> HEAD~<span class="arg">1</span></code><span
+                        class="cmd-desc">Undo commit, unstage changes</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> reset <span class="opt">--hard</span> HEAD~<span class="arg">1</span></code><span
+                        class="cmd-desc">Undo commit, delete changes</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> reset <span class="opt">--hard</span> <span class="arg">origin/main</span></code><span
+                        class="cmd-desc">Reset to match remote</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> clean <span class="opt">-fd</span></code><span
+                        class="cmd-desc">Remove untracked files &amp; dirs</span></div>
+            </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-tag">◈</div>
+                <span class="card-title">Tags</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> tag</code><span class="cmd-desc">List all tags</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> tag <span class="arg">v1.0.0</span></code><span
+                        class="cmd-desc">Create lightweight tag</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> tag <span class="opt">-a</span> <span class="arg">v1.0.0</span> <span class="opt">-m</span> <span class="str">"msg"</span></code><span
+                        class="cmd-desc">Create annotated tag</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> tag <span class="arg">v1.0.0</span> <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Tag a specific commit</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="arg">origin</span> <span class="arg">v1.0.0</span></code><span
+                        class="cmd-desc">Push a tag to remote</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="arg">origin</span> <span class="opt">--tags</span></code><span
+                        class="cmd-desc">Push all tags</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> tag <span class="opt">-d</span> <span class="arg">v1.0.0</span></code><span
+                        class="cmd-desc">Delete local tag</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> push <span class="arg">origin</span> <span class="opt">--delete</span> <span class="arg">v1.0.0</span></code><span
+                        class="cmd-desc">Delete remote tag</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFLOG -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-log">⟳</div>
+                <span class="card-title">Reflog &amp; Recovery</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd"><code><span class="kw">git</span> reflog</code><span class="cmd-desc">Show history of
+                        HEAD moves</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> reflog <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Reflog for specific branch</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> checkout <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Detach HEAD to any commit</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> branch <span class="arg">recovered</span> <span class="arg">&lt;hash&gt;</span></code><span
+                        class="cmd-desc">Recreate branch from hash</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> fsck <span class="opt">--lost-found</span></code><span
+                        class="cmd-desc">Find dangling objects</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> stash show <span class="opt">-p</span> <span class="arg">stash@{0}</span></code><span
+                        class="cmd-desc">Inspect a stash before applying</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBMODULES -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-init">⊕</div>
+                <span class="card-title">Submodules</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd">
+                    <code><span class="kw">git</span> submodule add <span class="arg">&lt;url&gt;</span></code><span
+                        class="cmd-desc">Add a submodule</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> submodule init</code><span
+                        class="cmd-desc">Initialize submodules</span></div>
+                <div class="cmd"><code><span class="kw">git</span> submodule update</code><span class="cmd-desc">Fetch
+                        submodule commits</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> submodule update <span class="opt">--init --recursive</span></code><span
+                        class="cmd-desc">Init and update recursively</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> clone <span class="opt">--recurse-submodules</span> <span class="arg">&lt;url&gt;</span></code><span
+                        class="cmd-desc">Clone with all submodules</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> submodule foreach <span class="arg">git pull</span></code><span
+                        class="cmd-desc">Pull in all submodules</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCED / TIPS -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon ic-config">✦</div>
+                <span class="card-title">Advanced &amp; Useful</span>
+            </div>
+            <div class="card-body">
+                <div class="cmd">
+                    <code><span class="kw">git</span> worktree add <span class="arg">&lt;dir&gt;</span> <span class="arg">&lt;branch&gt;</span></code><span
+                        class="cmd-desc">Checkout branch in new folder</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> archive <span class="opt">--format=zip</span> HEAD</code><span
+                        class="cmd-desc">Export repo as zip</span>
+                </div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> bundle create <span class="arg">repo.bundle</span> <span class="opt">--all</span></code><span
+                        class="cmd-desc">Bundle entire repo as file</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> gc</code><span class="cmd-desc">Clean up &amp;
+                        optimize repo</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> count-objects <span class="opt">-vH</span></code><span
+                        class="cmd-desc">Show repo disk usage</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> rev-parse HEAD</code><span class="cmd-desc">Print
+                        current commit hash</span></div>
+                <div class="cmd">
+                    <code><span class="kw">git</span> rev-parse <span class="opt">--abbrev-ref</span> HEAD</code><span
+                        class="cmd-desc">Print current branch name</span>
+                </div>
+                <div class="cmd"><code><span class="kw">git</span> ls-files</code><span class="cmd-desc">List tracked
+                        files</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>git cheat sheet · all commands for git 2.x</footer>
+
+</body>
+
+</html>
